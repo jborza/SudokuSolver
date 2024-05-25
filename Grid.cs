@@ -2,15 +2,12 @@
 
 internal class Grid
 {
-    //private int[,] sudoku;
-
     public List<Cell> cells;
     public int Height => 9;
     public int Width => 9;
 
     public Grid(int[,] sudoku)
     {
-        //this.sudoku = sudoku;
         cells = new List<Cell>();
         for (int x = 0; x < Width; x++)
         {
@@ -23,9 +20,9 @@ internal class Grid
 
     public void AutoFill()
     {
-        for (int x = 0; x < Width; x++)
+        for (int y = 0; y < Height; y++)
         {
-            for (int y = 0; y < Height; y++)
+            for (int x = 0; x < Width; x++)
             {
                 var cell = cells[x * Width + y];
                 cell.Options = GetOptions(x, y, cell);
@@ -57,9 +54,9 @@ internal class Grid
         // 6 7 8
         int regionX = region / 3;
         int regionY = region % 3;
-        for (int x = 0; x < 3; x++)
+        for (int y = 0; y < 3; y++)
         {
-            for (int y = 0; y < 3; y++)
+            for (int x = 0; x < 3; x++)
             {
                 var value = GetRegionValue(regionX * 3 + x, regionY * 3 + y);
                 if (value != 0)
@@ -160,34 +157,41 @@ internal class Grid
         return cells[x + row * Width].Value;
     }
 
+    internal Tuple<int,int> GetCoords(int n)
+    {
+        n -= 1;
+        return Tuple.Create(n % 3 * 30, n / 3 * 30);
+    }
+
     internal Image Draw()
     {
         Bitmap bitmap = new Bitmap(900, 900);
-        using(Graphics g = Graphics.FromImage(bitmap))
+        using (Graphics g = Graphics.FromImage(bitmap))
         {
-            for(int y = 0; y < Height; y++)
+            for (int y = 0; y < Height; y++)
             {
                 for (int x = 0; x < Width; x++)
                 {
                     var cell = cells[x + y * Height];
                     //is it a cell with value or not?
-                    if(cell.HasValue())
-                        g.DrawString(cell.Value.ToString(), 
-                            new Font("Arial", 32), 
-                            Brushes.Black, 
-                            x * 100, 
+                    if (cell.HasValue())
+                        g.DrawString(cell.Value.ToString(),
+                            new Font("Arial", 32),
+                            Brushes.Black,
+                            x * 100,
                             y * 100);
                     else
                     {
                         //draw options
-                        //TODO use fixed position per numbers
                         for (int i = 0; i < cell.Options.Count; i++)
                         {
+                            //use fixed position per numbers
+                            var coords = GetCoords(cell.Options[i]);
                             g.DrawString(cell.Options[i].ToString(),
                                 new Font("Arial", 12),
                                     Brushes.Gray,
-                                    x * 100 + i % 3 * 30,
-                                    y * 100 + i / 3 * 30);
+                                    x * 100 + coords.Item1,
+                                    y * 100 + coords.Item2);
                         }
                     }
                     g.DrawLine(Pens.Gray, x * 100, 0, x * 100, 900);
