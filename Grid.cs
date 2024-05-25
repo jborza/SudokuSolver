@@ -177,7 +177,7 @@ internal class Grid
             {
                 for (int x = 0; x < Width; x++)
                 {
-                    var cell = cells[x + y * Height];
+                    var cell = GetCell(x, y);
                     //is it a cell with value or not?
                     if (cell.HasValue())
                         g.DrawString(cell.Value.ToString(),
@@ -205,5 +205,27 @@ internal class Grid
             }
         }
         return bitmap;
+    }
+
+    internal void Step()
+    {
+        //step through the grid with the options ranked from easiest to hardest
+        //find the cell with 1 option and fill it
+        for (int y = 0; y < Height; y++)
+        {
+            for (int x = 0; x < Width; x++)
+            {
+                var cell = GetCell(x, y);
+                if(cell.HasValue())
+                    continue;
+                if (cell.Options.Count == 1)
+                {
+                    int value = cell.Options[0];
+                    cell.Value = value;
+                    cell.Options.Remove(value);
+                    return;
+                }
+            }
+        }
     }
 }
