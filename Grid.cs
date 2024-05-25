@@ -24,7 +24,7 @@ internal class Grid
         {
             for (int x = 0; x < Width; x++)
             {
-                var cell = cells[x * Width + y];
+                var cell = GetCell(x, y);
                 cell.Options = GetOptions(x, y, cell);
             }
         }
@@ -80,6 +80,11 @@ internal class Grid
             }
         }
         return options;
+    }
+
+    private Cell GetCell(int x, int y)
+    {
+        return cells[x + y * Width];
     }
 
     private int GetRegionValue(int x, int y)
@@ -157,7 +162,7 @@ internal class Grid
         return cells[x + row * Width].Value;
     }
 
-    internal Tuple<int,int> GetCoords(int n)
+    internal Tuple<int, int> GetCoords(int n)
     {
         n -= 1;
         return Tuple.Create(n % 3 * 30, n / 3 * 30);
