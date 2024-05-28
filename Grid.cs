@@ -25,7 +25,8 @@ internal class Grid
             for (int x = 0; x < Width; x++)
             {
                 var cell = GetCell(x, y);
-                cell.Options = GetOptions(x, y, cell);
+                if (!cell.HasValue())
+                    cell.Options = GetOptions(x, y, cell);
             }
         }
     }
@@ -210,22 +211,71 @@ internal class Grid
     internal void Step()
     {
         //step through the grid with the options ranked from easiest to hardest
-        //find the cell with 1 option and fill it
+        if (SingleOptionFind() == true)
+            return;
+        if (SingleOptionInRegion() == true)
+            return;
+    }
+
+    private bool SingleOptionInRegion()
+    {
+        //iterate through the regions, find one with 1 option
+        //need to go through a specific numbers though
+        for (int region = 0; region < 9; region++)
+        {
+            //regions are 3x3, numbered as 
+            // 0 1 2
+            // 3 4 5
+            // 6 7 8
+            int regionX = region % 3;
+            int regionY = region / 3;
+            for (int option = 1; option <= 9; option++)
+            {
+                List<Cell> cells = new List<Cell>();
+                //pick only the options that contain this number
+                for (int y = 0; y < 3; y++)
+                {
+                    for (int x = 0; x < 3; x++)
+                    {
+                        var cell = GetCell(regionX * 3 + x, regionY * 3 + y);
+                        if (cell.HasValue())
+                            continue; //skip the filled items
+                        var foundOption = cell.Options;
+                        var containsOption = foundOption.Contains(option);
+                        if (containsOption)
+                            cells.Add(cell);
+                    }
+                }
+                if (cells.Count == 1)
+                {
+                    //fill the cell with the only option
+                    cells[0].Value = option;
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    //find the cell with 1 option and fill it
+    private bool SingleOptionFind()
+    {
         for (int y = 0; y < Height; y++)
         {
             for (int x = 0; x < Width; x++)
             {
                 var cell = GetCell(x, y);
-                if(cell.HasValue())
+                if (cell.HasValue())
                     continue;
                 if (cell.Options.Count == 1)
                 {
                     int value = cell.Options[0];
                     cell.Value = value;
                     cell.Options.Remove(value);
-                    return;
+                    return true;
                 }
             }
         }
+        return false;
     }
 }

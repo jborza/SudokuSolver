@@ -105,7 +105,7 @@
             Controls.Add(pictureBox1);
             Controls.Add(textBox1);
             Name = "Form1";
-            Text = "Form1";
+            Text = "Sudoku Solver";
             ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
             ResumeLayout(false);
             PerformLayout();
